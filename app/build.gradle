@@ -45,5 +45,7 @@ dependencies {
     implementation 'com.orhanobut:logger:2.2.0'
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.4'
     implementation 'com.github.PhilJay:MPAndroidChart:v2.1.6'
+    implementation 'com.github.mjdev:libaums:0.6.0'
+    implementation 'com.github.mjdev:libaums-storageprovider:0.5.1'
 
 }

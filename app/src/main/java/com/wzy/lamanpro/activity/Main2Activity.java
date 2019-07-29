@@ -46,6 +46,11 @@ import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mjdev.libaums.UsbMassStorageDevice;
+import com.github.mjdev.libaums.fs.FileSystem;
+import com.github.mjdev.libaums.fs.UsbFile;
+import com.github.mjdev.libaums.fs.UsbFileInputStream;
+import com.github.mjdev.libaums.fs.UsbFileOutputStream;
 import com.wzy.lamanpro.R;
 import com.wzy.lamanpro.bean.HisData;
 import com.wzy.lamanpro.common.LaManApplication;
@@ -56,11 +61,15 @@ import com.wzy.lamanpro.utils.FileUtils;
 import com.wzy.lamanpro.utils.PermissionGetting;
 import com.wzy.lamanpro.utils.SPUtility;
 import com.wzy.lamanpro.utils.SystemUtils;
+import com.wzy.lamanpro.utils.UsbHelper;
 import com.wzy.lamanpro.utils.UsbUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -230,20 +239,70 @@ public class Main2Activity extends AppCompatActivity
                         }).create().show();
                 break;
             case R.id.data_copy:
+                try {
+                    UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(this /* Context or Activity */);
+                    for (UsbMassStorageDevice device : devices) {
+                        // before interacting with a device you need to call init()!
+                        device.init();
+                        // Only uses the first partition on the device
+                        FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
+//                        Log.d("u盘连接成功", "Capacity: " + currentFs.getCapacity());
+//                        Log.d("u盘连接成功", "Occupied Space: " + currentFs.getOccupiedSpace());
+//                        Log.d("u盘连接成功", "Free Space: " + currentFs.getFreeSpace());
+//                        Log.d("u盘连接成功", "Chunk size: " + currentFs.getChunkSize());
+                        UsbFile root = currentFs.getRootDirectory();
+//                        UsbFile[] files = root.listFiles();
+//                        for (UsbFile file : files) {
+//                            Log.d(TAG, file.getName());
+////                            if (file.isDirectory()) {
+////                                Log.d(TAG, String.valueOf(file.getLength()));
+////                            }
+//                        }
 
 
-                new AlertDialog.Builder(Main2Activity.this)
-                        .setMessage("该功能暂未开通。。。")
-                        .setTitle("数据备份:")
-                        .setPositiveButton("我知道了", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
+                        File[] dirFiles = Environment.getExternalStorageDirectory().listFiles();
+                        int count = 0;
+                        for (File dirFile : dirFiles) {
+                            FileChannel inputChannel = null;
+
+                            if (dirFile.getName().startsWith("拉曼测试报告-") && dirFile.getName().endsWith(".pdf")) {
+//                            showTmsg(sdDirect);
+                                FileUtils.saveSDFileToUsb(dirFile, root.createDirectory("拉曼数据导出"), new UsbHelper.DownloadProgressListener() {
+                                    @Override
+                                    public void downloadProgress(int progress) {
+//                                        Toast.makeText(Main2Activity.this, "复制文件中，已复制" + progress + "%", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                count++;
+
                             }
-                        }).create().show();
-                break;
+                        }
 
-//                String a = File.separator + "拉曼测试报告-" + new Date().getTime() + ".pdf";
+                        if (count == 0) {
+                            showTmsg("没有数据文件！");
+                        } else {
+                            showTmsg("导出数据完成，一共导出" + count + "个文件！");
+                        }
+//                        UsbFile newDir = root.createDirectory("拉曼数据导出");
+//                        UsbFile file = newDir.createFile("bar.txt");
+
+// write to a file
+//                        OutputStream os = new UsbFileOutputStream(file);
+//
+//                        os.write("hello".getBytes());
+//                        os.close();
+
+// read from a file
+//                        InputStream is = new UsbFileInputStream(file);
+//                        byte[] buffer = new byte[currentFs.getChunkSize()];
+//                        is.read(buffer);
+
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
 //                final StorageManager sm = (StorageManager) this.getSystemService(Context.STORAGE_SERVICE);
 //                String[] volumePaths = new String[0];
 //                String sdDirect = "";
@@ -289,9 +348,9 @@ public class Main2Activity extends AppCompatActivity
 //                } else {
 //                    showTmsg("请先插入u盘再导出！");
 //                }
-//
-//
-//                break;
+
+
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

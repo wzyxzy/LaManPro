@@ -2,6 +2,9 @@ package com.wzy.lamanpro.utils;
 
 import android.text.TextUtils;
 
+import com.github.mjdev.libaums.fs.UsbFile;
+import com.github.mjdev.libaums.fs.UsbFileOutputStream;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -593,4 +596,58 @@ public class FileUtils {
             }
         }
     }
+
+    /**
+     * 复制文件到 USB
+     *
+     * @param targetFile       需要复制的文件
+     * @param saveFolder       复制的目标文件夹
+     * @param progressListener 下载进度回调
+     * @return 复制结果
+     */
+    public static boolean saveSDFileToUsb(File targetFile, UsbFile saveFolder, UsbHelper.DownloadProgressListener progressListener) {
+        boolean result;
+        try {
+            //USB文件是否存在
+            boolean isExist = false;
+            UsbFile saveFile = null;
+            for (UsbFile usbFile : saveFolder.listFiles()) {
+                if (usbFile.getName().equals(targetFile.getName())) {
+                    isExist = true;
+                    saveFile = usbFile;
+                }
+            }
+            if (isExist) {
+                //文件已存在，删除文件
+                saveFile.delete();
+            }
+            //创建新文件
+            saveFile = saveFolder.createFile(targetFile.getName());
+            //开始写入
+            FileInputStream fis = new FileInputStream(targetFile);//读取选择的文件的
+            int avi = fis.available();
+            UsbFileOutputStream uos = new UsbFileOutputStream(saveFile);
+            int bytesRead;
+            byte[] buffer = new byte[1024 * 8];
+            int writeCount = 0;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                uos.write(buffer, 0, bytesRead);
+                writeCount += bytesRead;
+//                Log.e(TAG, "Progress : " + (writeCount * 100 / avi));
+                if (progressListener != null) {
+                    //回调下载进度
+                    progressListener.downloadProgress(writeCount * 100 / avi);
+                }
+            }
+            uos.flush();
+            fis.close();
+            uos.close();
+            result = true;
+        } catch (final Exception e) {
+            e.printStackTrace();
+            result = false;
+        }
+        return result;
+    }
+
 }

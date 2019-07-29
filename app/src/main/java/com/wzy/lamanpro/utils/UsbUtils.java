@@ -17,8 +17,13 @@ import android.text.BoringLayout;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.github.mjdev.libaums.UsbMassStorageDevice;
+import com.github.mjdev.libaums.fs.FileSystem;
+import com.github.mjdev.libaums.fs.UsbFile;
+import com.github.mjdev.libaums.partition.Partition;
 import com.wzy.lamanpro.common.LaManApplication;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -77,6 +82,14 @@ public class UsbUtils {
 //        }
         if (mInterface.getEndpointCount() < 3) {
             showTmsg(attach ? "u盘连接成功！" : "u盘已拔出！");
+
+
+
+            if (attach){
+                PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_DEVICE_PERMISSION), 0);
+                manager.requestPermission(mUsbDevice, permissionIntent);
+            }
+
             return false;
         }
 
@@ -330,4 +343,77 @@ public class UsbUtils {
     public static int twoByteToUnsignedInt(byte high, byte low) {
         return ((high << 8) & 0xffff) | (low & 0x00ff);
     }
+
+//    private void readDeviceList() {
+//        Log.i(TAG, "開始讀取設備列表...");
+//        //獲取存儲設備
+//        storageDevices = UsbMassStorageDevice.getMassStorageDevices(this);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+//        for (UsbMassStorageDevice device : storageDevices) {
+//            //可能有幾個 一般只有一個 因爲大部分手機只有1個otg插口
+//            if (usbManager.hasPermission(device.getUsbDevice())) {
+//                //有就直接讀取設備是否有權限
+//                Log.i(TAG, "檢測到有權限，直接讀取");
+//                AppSession.getInstance().isHostMode = true;
+//                readDevice(device);
+//            } else {//沒有就去發起意圖申請
+//                Log.i(TAG, "檢測到設備，但是沒有權限，進行申請");
+//                usbManager.requestPermission(device.getUsbDevice(), pendingIntent);
+//                //該代碼執行後，系統彈出一個對話框，
+//            }
+//        }
+//        if (storageDevices.length == 0) {
+//            AppSession.getInstance().isHostMode = false;
+//            Log.i(TAG, "未檢測到有任何存儲設備插入");
+//        }
+//    }
+//
+//    private void readDevice(UsbMassStorageDevice device) {
+//        // before interacting with a device you need to call init()!
+//        try {
+//            device.init();//初始化
+//            //Only uses the first partition on the device
+//            Partition partition = device.getPartitions().get(0);
+//            FileSystem currentFs = partition.getFileSystem();
+//            //fileSystem.getVolumeLabel()可以獲取到設備的標識
+//            //通過FileSystem可以獲取當前U盤的一些存儲信息，包括剩餘空間大小，容量等等
+//            UsbFile root = currentFs.getRootDirectory();//獲取根目錄
+//            String deviceName = currentFs.getVolumeLabel();//獲取設備標籤
+//            Log.i(TAG,"正在讀取U盤" + deviceName);
+//            cFolder = root;//設置當前文件對象
+//            createDir(device);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            Log.i(TAG,"讀取失敗，異常：" + e.getMessage());
+//        }
+//    }
+//
+//    private void createDir(UsbMassStorageDevice device) throws IOException {
+//        String localPath = ConfigManager.getInstance().getConfig().getLocalpath();
+//        if(localPath.startsWith("/")){
+//            localPath = localPath.substring(1);
+//        }
+//
+//        if(localPath.endsWith("/")){
+//            localPath = localPath.substring(0, localPath.length()-1);
+//        }
+//        String[] dirs =  localPath.split("/");
+//        if(dirs == null){
+//            return;
+//        }
+//
+//
+//        UsbFile tmpFile;
+//        for (int i = 0; i < dirs.length; i++ ){
+//            tmpFile = cFolder.search(dirs[i]);
+//            if(tmpFile == null){
+//                cFolder = cFolder.createDirectory(dirs[i]);
+//            }else {
+//                cFolder = tmpFile;
+//            }
+//        }
+//
+//        device.close();
+//    }
 }
