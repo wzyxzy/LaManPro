@@ -241,24 +241,18 @@ public class Main2Activity extends AppCompatActivity
             case R.id.data_copy:
                 try {
                     UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(this /* Context or Activity */);
+                    if (devices.length==0){
+                        showTmsg("备份失败，请插入u盘！！");
+                        return false;
+                    }
                     for (UsbMassStorageDevice device : devices) {
                         // before interacting with a device you need to call init()!
                         device.init();
                         // Only uses the first partition on the device
                         FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
 //                        Log.d("u盘连接成功", "Capacity: " + currentFs.getCapacity());
-//                        Log.d("u盘连接成功", "Occupied Space: " + currentFs.getOccupiedSpace());
-//                        Log.d("u盘连接成功", "Free Space: " + currentFs.getFreeSpace());
-//                        Log.d("u盘连接成功", "Chunk size: " + currentFs.getChunkSize());
-                        UsbFile root = currentFs.getRootDirectory();
-//                        UsbFile[] files = root.listFiles();
-//                        for (UsbFile file : files) {
-//                            Log.d(TAG, file.getName());
-////                            if (file.isDirectory()) {
-////                                Log.d(TAG, String.valueOf(file.getLength()));
-////                            }
-//                        }
 
+                        UsbFile root = currentFs.getRootDirectory();
 
                         File[] dirFiles = Environment.getExternalStorageDirectory().listFiles();
                         int count = 0;
@@ -283,71 +277,13 @@ public class Main2Activity extends AppCompatActivity
                         } else {
                             showTmsg("导出数据完成，一共导出" + count + "个文件！");
                         }
-//                        UsbFile newDir = root.createDirectory("拉曼数据导出");
-//                        UsbFile file = newDir.createFile("bar.txt");
-
-// write to a file
-//                        OutputStream os = new UsbFileOutputStream(file);
-//
-//                        os.write("hello".getBytes());
-//                        os.close();
-
-// read from a file
-//                        InputStream is = new UsbFileInputStream(file);
-//                        byte[] buffer = new byte[currentFs.getChunkSize()];
-//                        is.read(buffer);
 
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                    showTmsg("备份失败，请插入u盘！！");
                 }
 
-
-//                final StorageManager sm = (StorageManager) this.getSystemService(Context.STORAGE_SERVICE);
-//                String[] volumePaths = new String[0];
-//                String sdDirect = "";
-//                try {
-//                    final Method method = sm.getClass().getMethod("getVolumePaths");
-//                    if (null != method) {
-//                        method.setAccessible(true);
-//                        volumePaths = (String[]) method.invoke(sm);
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//                if ((volumePaths != null) && (volumePaths.length > 0)) {
-//                    for (String sdcardPath : volumePaths) {
-//                        if (!sdcardPath.equalsIgnoreCase(Environment.getExternalStorageDirectory().getAbsolutePath())) {
-//                            sdDirect = sdcardPath;
-//                        }
-////                        showTmsg("sdcardPath:" + sdcardPath);
-////                        Log.d(TAG,"sdcardPath:" + sdcardPath);
-//                    }
-//                }
-//                if (sdDirect.contains("null")) {
-//                    showTmsg("u盘正在安装，请稍后再试！");
-//                    return false;
-//                }
-//                if (!TextUtils.isEmpty(sdDirect)) {
-//                    File[] dirFiles = Environment.getExternalStorageDirectory().listFiles();
-//                    int count = 0;
-//                    for (File dirFile : dirFiles) {
-//                        if (dirFile.getName().startsWith("拉曼测试报告-") && dirFile.getName().endsWith(".pdf")) {
-////                            showTmsg(sdDirect);
-//                            FileUtils.copyFile(dirFile.getAbsolutePath(), sdDirect + File.separator + dirFile.getName());
-//                            count++;
-//
-//                        }
-//                    }
-//
-//                    if (count == 0) {
-//                        showTmsg("没有数据文件！");
-//                    } else {
-//                        showTmsg("导出数据完成，一共导出" + count + "个文件！");
-//                    }
-//                } else {
-//                    showTmsg("请先插入u盘再导出！");
-//                }
 
 
                 break;
