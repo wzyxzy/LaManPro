@@ -241,7 +241,7 @@ public class Main2Activity extends AppCompatActivity
             case R.id.data_copy:
                 try {
                     UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(this /* Context or Activity */);
-                    if (devices.length==0){
+                    if (devices.length == 0) {
                         showTmsg("备份失败，请插入u盘！！");
                         return false;
                     }
@@ -253,15 +253,25 @@ public class Main2Activity extends AppCompatActivity
 //                        Log.d("u盘连接成功", "Capacity: " + currentFs.getCapacity());
 
                         UsbFile root = currentFs.getRootDirectory();
-
+                        UsbFile[] files = root.listFiles();
+                        UsbFile destination = null;
+                        for (UsbFile file : files) {
+                            if (file.getName().equalsIgnoreCase("拉曼数据导出") && file.isDirectory()) {
+                                destination = file;
+                            }
+                        }
+                        if (destination == null || !destination.getName().equalsIgnoreCase("拉曼数据导出")) {
+                            destination = root.createDirectory("拉曼数据导出");
+                        }
                         File[] dirFiles = Environment.getExternalStorageDirectory().listFiles();
                         int count = 0;
                         for (File dirFile : dirFiles) {
-                            FileChannel inputChannel = null;
+//                            FileChannel inputChannel = null;
 
                             if (dirFile.getName().startsWith("拉曼测试报告-") && dirFile.getName().endsWith(".pdf")) {
 //                            showTmsg(sdDirect);
-                                FileUtils.saveSDFileToUsb(dirFile, root.createDirectory("拉曼数据导出"), new UsbHelper.DownloadProgressListener() {
+
+                                FileUtils.saveSDFileToUsb(dirFile, destination, new UsbHelper.DownloadProgressListener() {
                                     @Override
                                     public void downloadProgress(int progress) {
 //                                        Toast.makeText(Main2Activity.this, "复制文件中，已复制" + progress + "%", Toast.LENGTH_SHORT).show();
@@ -281,9 +291,8 @@ public class Main2Activity extends AppCompatActivity
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    showTmsg("备份失败，请插入u盘！！");
+//                    showTmsg("备份失败，请插入u盘！！");
                 }
-
 
 
                 break;
