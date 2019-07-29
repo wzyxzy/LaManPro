@@ -82,9 +82,6 @@ public class UsbUtils {
 //        }
         if (mInterface.getEndpointCount() < 3) {
             showTmsg(attach ? "u盘连接成功！" : "u盘已拔出！");
-
-
-
             if (attach){
                 PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_DEVICE_PERMISSION), 0);
                 manager.requestPermission(mUsbDevice, permissionIntent);

@@ -292,6 +292,11 @@ public class Main2Activity extends AppCompatActivity
                 } catch (IOException e) {
                     e.printStackTrace();
 //                    showTmsg("备份失败，请插入u盘！！");
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                    LaManApplication.canUseUsb = UsbUtils.initUsbData(this, true);
+                    showTmsg("请给u盘授予读写权限！！");
+
                 }
 
 
