@@ -169,7 +169,7 @@ public class UsbUtils {
         mDeviceConnection.bulkTransfer(usbEpOut, sendbytes, sendbytes.length, 5000);
         if (isLast) {
             // 接收发送成功信息(相当于读取设备数据)
-            receiveytes = new byte[4200];   //根据设备实际情况写数据大小
+            receiveytes = new byte[4190];   //根据设备实际情况写数据大小
             mDeviceConnection.bulkTransfer(usbEpIn, receiveytes, receiveytes.length, 10000);
             return receiveytes;
         }
@@ -177,10 +177,10 @@ public class UsbUtils {
     }
 
     public static byte[] readFromUsb() {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(4200);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(4190);
         UsbRequest usbRequest = new UsbRequest();
         usbRequest.initialize(mDeviceConnection, usbEpIn);
-        usbRequest.queue(byteBuffer, 4200);
+        usbRequest.queue(byteBuffer, 4190);
         if (mDeviceConnection.requestWait() == usbRequest) {
             return byteBuffer.array();
         }
@@ -249,6 +249,15 @@ public class UsbUtils {
             sb.append(hex);
         }
         return sb.toString();
+    }
+
+    public static String bytesToHexFun3(byte[] bytes) {
+        StringBuilder buf = new StringBuilder(bytes.length * 2);
+        for(byte b : bytes) { // 使用String的format方法进行转换
+            buf.append(String.format("%02x", new Integer(b & 0xff)));
+        }
+
+        return buf.toString();
     }
 
     /**

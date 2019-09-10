@@ -193,8 +193,8 @@ public class AddLibrary extends AppCompatActivity implements View.OnClickListene
                     button_start.setEnabled(false);
                     button_start.setText("正在测试");
                     handler.sendEmptyMessage(2);
-                    results = new byte[once][4200];
-                    finalsResults = new float[2100];
+                    results = new byte[once][4190];
+                    finalsResults = new float[2095];
 //                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
 //                    final String fileName = Environment.getExternalStorageDirectory() + File.separator + "拉曼测试原始数据-" + sdf.format(new Date()) + ".txt";
 

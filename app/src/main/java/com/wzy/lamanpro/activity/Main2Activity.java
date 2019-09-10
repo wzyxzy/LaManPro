@@ -68,10 +68,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -637,8 +640,8 @@ public class Main2Activity extends AppCompatActivity
         button_start.setText("正在测试");
         handler.sendEmptyMessage(2);
         testCount = 2;
-        results = new byte[once][4200];
-        finalsResults = new float[2100];
+        results = new byte[once][4190];
+        finalsResults = new float[2095];
 //        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         final String fileName = Environment.getExternalStorageDirectory() + File.separator + "拉曼测试原始数据-" + new Date().getTime() + ".txt";
         final Timer timer = new Timer();
@@ -681,7 +684,10 @@ public class Main2Activity extends AppCompatActivity
                     case 4:
                         results[count[1]++] = readFromUsb();
                         progress_bar.setProgress(count[1] * 100 / once);
-                        FileUtils.writeFile(fileName, String.valueOf(results[count[1] - 1]) + "\r\n", true);
+                        if (results[count[1] - 1] != null) {
+                            FileUtils.writeFile(fileName, UsbUtils.bytesToHexFun3(results[count[1] - 1]) + "\r\n", true);
+
+                        }
 //                                    stateText.append("返回结果完毕并存储。\n");
 //                                    stateText.append("返回的内容是：" + Arrays.toString(results) + "\n");
                         break;
